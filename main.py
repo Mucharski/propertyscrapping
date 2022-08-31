@@ -23,7 +23,7 @@ def imovelweb():
 
     most_recent_apartment = page.find("div", {"data-qa": "posting PROPERTY"})
     price = most_recent_apartment.find("div", {"data-qa": "POSTING_CARD_PRICE"}).get_text().strip()
-    # PEGAR PREÇO - ENDEREÇO E DADOS
+    # PEGAR PREÇO - ENDEREÇO E DADOS A
 
     return jsonify({"Message": "Processado com sucesso!"})
 
