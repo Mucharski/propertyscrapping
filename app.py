@@ -15,6 +15,14 @@ app = Flask(__name__)
 def status():
     return jsonify({"Message": "API no ar"})
 
+@app.route("/function/trigger")
+def azureFunctionTrigger():
+    bot_message = f"Trigger efetuado"
+    send_text = 'https://api.telegram.org/bot' + os.environ.get("BOT_TOKEN") + f'/sendMessage?chat_id=1257871706&parse_mode=Markdown&text=' + bot_message
+
+    requests.get(send_text)
+
+    return jsonify({"Message": "Processado com sucesso!"})
 
 @app.route("/scrapper/imovelweb")
 def imovelweb():
