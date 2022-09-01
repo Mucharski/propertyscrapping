@@ -13,7 +13,6 @@ app = Flask(__name__)
 
 @app.route("/")
 def status():
-
     return jsonify({"Message": "API no ar"})
 
 
@@ -29,7 +28,8 @@ def imovelweb():
         i = 0
 
         while i < 10:
-            neighborhood = most_recent_apartments[i].find("div", {"data-qa": "POSTING_CARD_LOCATION"}).get_text().strip()
+            neighborhood = most_recent_apartments[i].find("div",
+                                                          {"data-qa": "POSTING_CARD_LOCATION"}).get_text().strip()
 
             price = most_recent_apartments[i].find("div", {"data-qa": "POSTING_CARD_PRICE"}).get_text().strip()
 
@@ -98,6 +98,4 @@ def imovelweb():
 
 
 if __name__ == "__main__":
-    from waitress import serve
-
-    serve(app, host="0.0.0.0", port=8080)
+    app.run(host='0.0.0.0', port=5000)
