@@ -1,4 +1,5 @@
 import requests
+import cloudscraper
 from bs4 import BeautifulSoup
 
 
@@ -11,6 +12,12 @@ class RequestPage:
 
     def connectwithsite(self):
         site = requests.get(self.url, headers=self.headers)
+
+        if int(site.status_code) == 403:
+            scraper = cloudscraper.create_scraper(delay=10, browser={
+                "custom": "ScraperBot/1.0"})  # Site protegido por CloudFlare precisa utilizar esse scrapper
+            site = scraper.get(self.url)
+
         soap = BeautifulSoup(site.content, 'html.parser')
 
         return soap
