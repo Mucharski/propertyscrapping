@@ -60,4 +60,4 @@ jobs:
         with:
           app-name: 'propertyscrapping'
           slot-name: 'Production'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_08DEBBBDD99949C7BB0827A53FB00969 }}
+          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_9667420937864334855463BE61EC9B33 }}
