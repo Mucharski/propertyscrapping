@@ -4,6 +4,8 @@ from RequestPage import RequestPage
 from flask import Flask, jsonify
 from dotenv import load_dotenv
 
+from TelegramBot import TelegramBot
+
 load_dotenv()
 
 app = Flask(__name__)
@@ -11,22 +13,6 @@ app = Flask(__name__)
 
 @app.route("/")
 def status():
-    # url = os.environ.get("URL")
-    #
-    # page = RequestPage(url).connectwithsite()
-    #
-    # all_posts = page.find_all("div", {"data-qa": "posting PROPERTY"})
-    #
-    # f = open("docs/LastProperty.txt", "w")
-    # for post in all_posts:
-    #     price = post.find("div", {"data-qa": "POSTING_CARD_PRICE"}).get_text().strip()
-    #
-    #     details = post.find("div", {"data-qa": "POSTING_CARD_FEATURES"}).find_all("span")
-    #     total_square_area = details[0].find("span").get_text().strip()
-    #
-    #     description = post.find("div", {"data-qa": "POSTING_CARD_DESCRIPTION"}).get_text().strip()
-    #
-    #     f.write(f"{price};{total_square_area};{description}\n")
 
     return jsonify({"Message": "API no ar"})
 
@@ -43,7 +29,7 @@ def imovelweb():
         i = 0
 
         while i < 10:
-            bairro = most_recent_apartments[i].find("div", {"data-qa": "POSTING_CARD_LOCATION"}).get_text().strip()
+            neighborhood = most_recent_apartments[i].find("div", {"data-qa": "POSTING_CARD_LOCATION"}).get_text().strip()
 
             price = most_recent_apartments[i].find("div", {"data-qa": "POSTING_CARD_PRICE"}).get_text().strip()
 
@@ -52,7 +38,7 @@ def imovelweb():
             try:
                 image = most_recent_apartments[i].find("div", {"data-qa": "POSTING_CARD_GALLERY"}).find("img")["src"]
             except TypeError:
-                image = "https://divanmoveis.com.br/img/icons/404.png"
+                image = "https://cdn-icons-png.flaticon.com/512/1695/1695213.png"
 
             details = most_recent_apartments[i].find("div", {"data-qa": "POSTING_CARD_FEATURES"}).find_all("span")
             total_square_area = details[0].find("span").get_text().strip()
@@ -63,8 +49,9 @@ def imovelweb():
             string_to_compare = f"{price};{total_square_area};{description}"
 
             new = True
-            f = open("docs/LastProperty.txt", "r+")
-            last_twenty_apartments = f.read().split("\n")[:-1]
+            f = open("docs/LastProperty.txt", "r")
+            last_twenty_apartments = f.read().split("\n")[:-1]  # SEMPRE TEM UMA LINHA EM BRANCO NO FINAL, NÃO PEGO ELA
+            f.close()
 
             for apartment in last_twenty_apartments:
                 if apartment == string_to_compare:
@@ -72,27 +59,41 @@ def imovelweb():
                     break
 
             if new:
-                token = os.environ.get("BOT_TOKEN")
-                bot_chat_id = os.environ.get("BOT_CHAT_ID")
+                bot = TelegramBot(os.environ.get("BOT_TOKEN"), os.environ.get("BOT_CHAT_ID"))
+
                 bot_message = f"*Novo apartamento* \n" \
                               f"*Preço*: {price}  \n" \
-                              f"*Local*: {bairro} \n" \
+                              f"*Local*: {neighborhood} \n" \
                               f"*Tamanho*: {total_square_area}  \n" \
                               f"*Descrição*: {description}  \n" \
                               f"[Clique aqui para visualizar o anúncio]({os.environ.get('BASE_URL')}{url}"
-                send_text = 'https://api.telegram.org/bot' + token + f'/sendPhoto?photo={image}&chat_id=' + bot_chat_id + '&parse_mode=Markdown&caption=' + bot_message
 
-                response = requests.get(send_text)
+                requests.get(bot.sendMessage(bot_message, image))
 
-            #     f.write(string_to_compare)
-            #     for apartment in last_twenty_apartments:
-            #         f.write(apartment)
-            #
-            # f.close()
+                last_twenty_apartments.insert(0, string_to_compare)
+                last_twenty_apartments.pop()
+
+                f = open("docs/LastProperty.txt", "w").close()  # LIMPA O ARQUIVO
+
+                f = open("docs/LastProperty.txt", "a")
+
+                for apartment in last_twenty_apartments:
+                    f.write(f"{apartment}\n")
+
+                f.close()
+
             i += 1
 
         return jsonify({"Message": "Processado com sucesso!"})
     except Exception as e:
+        bot = TelegramBot(os.environ.get("BOT_TOKEN"), os.environ.get("BOT_CHAT_ID"))
+
+        requests.get(bot.sendError())
+
+        f = open("docs/errorslogs.txt", "a")
+        f.write(str(e) + "\n")
+        f.close()
+
         return jsonify({"Message": "Houve um erro ao processar a requisição", "Error": e})
 
 
