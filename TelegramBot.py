@@ -8,8 +8,8 @@ class TelegramBot:
 
         return send_text
 
-    def sendError(self):
-        bot_message = f"Ocorreu um erro ao enviar as informações.\nConfira o log de erros.\n"
+    def sendError(self, informations):
+        bot_message = f"Ocorreu um erro ao enviar as informações.\nConfira o log de erros.\n{informations}"
         send_text = 'https://api.telegram.org/bot' + self.token + f'/sendMessage?chat_id=1257871706&parse_mode=Markdown&text=' + bot_message
 
         return send_text

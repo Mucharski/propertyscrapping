@@ -96,13 +96,15 @@ def imovelweb():
     except Exception as e:
         bot = TelegramBot(os.environ.get("BOT_TOKEN"), os.environ.get("BOT_CHAT_ID"))
 
-        requests.get(bot.sendError())
+        informations = {"QtdApartamentos": len(most_recent_apartments)}
+
+        requests.get(bot.sendError(str(informations)))
 
         f = open("docs/errorslogs.txt", "a")
-        f.write(str(e) + "\n")
+        f.write(str(e) + "\n" + str(informations))
         f.close()
 
-        return jsonify({"Message": "Houve um erro ao processar a requisição", "Error": e})
+        return jsonify({"Message": "Houve um erro ao processar a requisição", "Error": {"QtdApartamentos": len(most_recent_apartments)}})
 
 
 if __name__ == "__main__":
